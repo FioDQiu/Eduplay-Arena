@@ -10,6 +10,7 @@ Kami merancang EduPlay Arena sebagai portal permainan edukatif yang menyediakan 
 Prompt AI:
 Saya ingin membuat situs web ice breaking edukatif dengan empat game: Tower of Quiz, Cyber Maze Race, Galaxy Tug-of-War, dan Neon Fish Raid. Setiap game memiliki mekanisme berbeda, fitur multiplayer menggunakan kode ruangan, pengaturan kuis oleh guru, leaderboard, dan mode solo. Bantu susun rancangan fitur dan alur programnya.
 Hasil AI: AI memberikan saran mengenai struktur portal, mekanisme setiap game, pengaturan ruang permainan, sistem kuis, serta interaksi guru dan siswa.
+<img width="703" height="772" alt="Screenshot 2026-11-20 221620" src="https://github.com/user-attachments/assets/fd39d0c2-9b35-4952-add1-970d5c681d9a" />
 
 Tahap 2 — Penyusunan Kerangka Kode
 Kami menyusun program menggunakan HTML, CSS, dan JavaScript. Program dibagi menjadi halaman portal, dashboard guru, tampilan siswa, serta mekanisme permainan.
