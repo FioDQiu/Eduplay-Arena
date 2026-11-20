@@ -1,6 +1,3 @@
-// =====================================================================
-// AUDIO SYNTHESIZER (WEB AUDIO API - ZERO ASSET DEPENDENCY)
-// =====================================================================
 const SoundFX = {
     ctx: null,
     muted: false,
@@ -105,10 +102,6 @@ function showToast(message, type = 'info') {
         setTimeout(() => toast.remove(), 300);
     }, 2800);
 }
-
-// =====================================================================
-// GAME DEFINITIONS & CONFIGURATION FOR 4 GAMES
-// =====================================================================
 const GAME_DEFINITIONS = {
     tower: {
         id: 'tower',
@@ -274,20 +267,15 @@ function createMulberry32(seed) {
 }
 
 
-// =====================================================================
-// GLOBAL STATE & STORAGE
-// =====================================================================
+
 const STORAGE_PREFIX = 'EDUPLAY_ROOM_';
-let currentRole = null; // 'teacher' | 'student' | 'solo'
+let currentRole = null; 
 let currentRoomCode = null;
 let currentStudentId = null;
 let currentStudentName = 'Siswa';
 let syncInterval = null;
 let lastProgressSendTime = 0;
 
-// =====================================================================
-// REALTIME MULTI-USER NETWORK MANAGER (MQTT + BROADCAST CHANNEL + FALLBACK)
-// =====================================================================
 const NetworkManager = {
     client: null,
     channel: null,
@@ -648,10 +636,6 @@ const NetworkManager = {
 
 NetworkManager.init();
 
-// =====================================================================
-// DATA STORAGE & UTILITY FUNCTIONS
-// =====================================================================
-function generateRandomRoomCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';
     for (let i = 0; i < 6; i++) {
@@ -750,10 +734,6 @@ window.addEventListener('storage', (e) => {
     }
 });
 
-
-// =====================================================================
-// TEACHER DASHBOARD, LOBBY & QUESTION BANK LOGIC
-// =====================================================================
 function createTeacherRoom() {
     SoundFX.init();
     const code = generateRandomRoomCode();
@@ -1089,7 +1069,7 @@ function updateTeacherClockAndLeaderboard() {
         return;
     }
 
-    // Game-specific leaderboard sorting & display
+   
     const gType = room.gameType || 'tower';
     if (gType === 'tower') {
         studentsArr.sort((a, b) => (b.height || 0) - (a.height || 0));
@@ -1196,9 +1176,6 @@ function updateTeacherClockAndLeaderboard() {
     }
 }
 
-// =====================================================================
-// STUDENT JOIN, SOLO SIMULATION & GAME VIEW SETUP
-// =====================================================================
 function checkUrlRoomParam() {
     const params = new URLSearchParams(window.location.search);
     const roomParam = params.get('room') || window.location.hash.replace('#room=', '').replace('#', '');
@@ -1359,7 +1336,6 @@ function enterStudentGameView() {
     document.getElementById('waitingRoomCode').textContent = currentRoomCode;
     document.getElementById('waitingStudentName').textContent = currentStudentName;
 
-    // Adapt HUD labels
     document.getElementById('hudProgressLabel').textContent = def.progressLabel;
     document.getElementById('hudMaxHeightText').textContent = def.maxProgress;
     document.getElementById('hudPointsIcon').textContent = def.pointsIcon;
@@ -1367,7 +1343,6 @@ function enterStudentGameView() {
     document.getElementById('btnQuizText').textContent = def.quizBtnText;
     document.getElementById('hudControlsHint').textContent = def.controlsHint;
 
-    // Special action button & respawn button visibility
     const btnRespawn = document.getElementById('btnRespawn');
     const btnSpecial = document.getElementById('btnSpecialAction');
 
@@ -1433,7 +1408,6 @@ function syncStudentWithRoom() {
         triggerEndGameModal(false);
     }
 
-    // Bot simulation in solo mode
     if (room.code && room.code.startsWith('SOLO') && room.status === 'playing') {
         if (currentGameType === 'tower') {
             ['BOT_1', 'BOT_2'].forEach(botId => {
@@ -1458,14 +1432,12 @@ function syncStudentWithRoom() {
         }
     }
 
-    // Sync student stats
     if (room.students && room.students[currentStudentId]) {
         const s = room.students[currentStudentId];
         syncLocalStatsToRoomStudent(s);
         saveRoomData(currentRoomCode, room);
     }
 
-    // Update rank / HUD progress
     updateHUDProgressAndRank(room);
     sendLocalStudentProgress();
 }
@@ -1560,9 +1532,6 @@ function sendLocalStudentProgress(immediate = false) {
     NetworkManager.sendStudentPos(posData);
 }
 
-// =====================================================================
-// QUIZ MODAL & MEME FEEDBACK ENGINE
-// =====================================================================
 let currentQuestionObj = null;
 let lastQuestionIdx = -1;
 
@@ -1630,7 +1599,6 @@ function submitQuizAnswer(selectedIdx) {
     if (isCorrect) {
         SoundFX.correct();
 
-        // Game-specific reward logic!
         if (currentGameType === 'tower') {
             GameState.jumpPoints += 2;
             updatePointsHUD();
@@ -1676,9 +1644,6 @@ function submitQuizAnswer(selectedIdx) {
 }
 
 
-// =====================================================================
-// GAME 1: TOWER OF QUIZ ENGINE
-// =====================================================================
 const TOWER_CONFIG = {
     virtualWidth: 800,
     totalPlatforms: 25,
@@ -1956,7 +1921,6 @@ function drawTowerScene() {
     ctx.scale(scale, scale);
     ctx.translate(0, -GameState.cameraY);
 
-    // Tower walls background
     const viewTop = GameState.cameraY - 100;
     const viewBottom = GameState.cameraY + canvas.height / scale + 100;
 
@@ -1974,7 +1938,6 @@ function drawTowerScene() {
         ctx.stroke();
     }
 
-    // Border pillars
     ctx.fillStyle = '#0f172a';
     ctx.fillRect(0, viewTop, 30, viewBottom - viewTop);
     ctx.fillRect(TOWER_CONFIG.virtualWidth - 30, viewTop, 30, viewBottom - viewTop);
@@ -1985,7 +1948,6 @@ function drawTowerScene() {
     ctx.moveTo(TOWER_CONFIG.virtualWidth - 30, viewTop); ctx.lineTo(TOWER_CONFIG.virtualWidth - 30, viewBottom);
     ctx.stroke();
 
-    // Platforms
     GameState.platforms.forEach(plat => {
         if (plat.y + plat.h < viewTop || plat.y > viewBottom) return;
         ctx.shadowColor = plat.glow;
@@ -2010,7 +1972,6 @@ function drawTowerScene() {
         }
     });
 
-    // Other classmates
     Object.values(NetworkManager.otherPlayers).forEach(op => {
         if (op.targetX !== undefined) {
             op.x += (op.targetX - op.x) * 0.2;
@@ -2019,11 +1980,9 @@ function drawTowerScene() {
         drawPlayerAvatar(ctx, op.x, op.y, op.facing, op.color || '#ec4899', op.name, false);
     });
 
-    // Local player
     const p = GameState.player;
     drawPlayerAvatar(ctx, p.x, p.y, p.facing, p.color, currentStudentName, true);
 
-    // Particles
     GameState.particles.forEach(pt => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, pt.alpha);
@@ -2051,9 +2010,6 @@ function spawnParticles(x, y, color, count = 10) {
     }
 }
 
-// =====================================================================
-// GAME 2: CYBER MAZE RACE ENGINE
-// =====================================================================
 const MazeState = {
     paused: false,
     gameEnded: false,
@@ -2094,7 +2050,6 @@ function initMazeGame(seed = 12345) {
 
     generateCyberMaze(seed);
 
-    // Spawn player at (1, 1) cell center
     const startX = 1.5 * MazeState.cellSize;
     const startY = 1.5 * MazeState.cellSize;
     MazeState.player.x = startX;
@@ -2126,7 +2081,6 @@ function generateCyberMaze(seed = 12345) {
         }
     }
 
-    // Depth-First Search with backtracking
     const stack = [];
     const startCell = grid[1][1];
     startCell.visited = true;
@@ -2136,13 +2090,9 @@ function generateCyberMaze(seed = 12345) {
         const curr = stack[stack.length - 1];
         const neighbors = [];
 
-        // Check top
         if (curr.r > 1 && !grid[curr.r - 1][curr.c].visited) neighbors.push({ cell: grid[curr.r - 1][curr.c], dir: 'top' });
-        // Check right
         if (curr.c < cols - 2 && !grid[curr.r][curr.c + 1].visited) neighbors.push({ cell: grid[curr.r][curr.c + 1], dir: 'right' });
-        // Check bottom
         if (curr.r < rows - 2 && !grid[curr.r + 1][curr.c].visited) neighbors.push({ cell: grid[curr.r + 1][curr.c], dir: 'bottom' });
-        // Check left
         if (curr.c > 1 && !grid[curr.r][curr.c - 1].visited) neighbors.push({ cell: grid[curr.r][curr.c - 1], dir: 'left' });
 
         if (neighbors.length > 0) {
@@ -2163,7 +2113,6 @@ function generateCyberMaze(seed = 12345) {
 
     MazeState.grid = grid;
 
-    // Cyber Core at (cols - 2, rows - 2)
     const coreR = rows - 2;
     const coreC = cols - 2;
     MazeState.core = {
@@ -2174,7 +2123,6 @@ function generateCyberMaze(seed = 12345) {
         radius: 26
     };
 
-    // Strategic Laser Firewall Gates
     MazeState.gates = [
         { id: 1, x: 4.5 * MazeState.cellSize, y: 3.5 * MazeState.cellSize, w: 60, h: 14, unlocked: false, color: '#f43f5e' },
         { id: 2, x: 8.5 * MazeState.cellSize, y: 5.5 * MazeState.cellSize, w: 14, h: 60, unlocked: false, color: '#f59e0b' },
@@ -2186,7 +2134,7 @@ function attemptMazeTurbo() {
     if (MazeState.paused || MazeState.gameEnded) return;
     if (MazeState.turboEnergy > 0) {
         MazeState.turboEnergy--;
-        MazeState.player.turboTimer = 160; // ~2.6s
+        MazeState.player.turboTimer = 160; 
         SoundFX.turbo();
         updatePointsHUD();
         showToast('⚡ TURBO BOOST DIAKTIFKAN!', 'success');
@@ -2237,21 +2185,17 @@ function updateMazePhysics() {
     p.vy = moveY * currentSpeed;
     if (moveX !== 0) p.facing = moveX > 0 ? 1 : -1;
 
-    // Circle collision with maze walls
     const cs = MazeState.cellSize;
     const newX = p.x + p.vx;
     const newY = p.y + p.vy;
 
-    // Test X motion
     if (!checkMazeWallCollision(newX, p.y, p.radius)) {
         p.x = newX;
     }
-    // Test Y motion
     if (!checkMazeWallCollision(p.x, newY, p.radius)) {
         p.y = newY;
     }
 
-    // Laser Gate Collision
     MazeState.gates.forEach(g => {
         if (!g.unlocked) {
             if (Math.abs(p.x - g.x) < (p.radius + g.w / 2) && Math.abs(p.y - g.y) < (p.radius + g.h / 2)) {
@@ -2264,13 +2208,11 @@ function updateMazePhysics() {
         }
     });
 
-    // Distance to core
     const startDist = Math.hypot(MazeState.core.x - 1.5 * cs, MazeState.core.y - 1.5 * cs);
     const currDist = Math.hypot(MazeState.core.x - p.x, MazeState.core.y - p.y);
     const pct = Math.max(0, Math.min(100, Math.round((1 - (currDist / startDist)) * 100)));
     MazeState.progress = pct;
 
-    // Check Core Finish
     if (currDist < (p.radius + MazeState.core.radius) && !MazeState.reachedCore) {
         MazeState.reachedCore = true;
         MazeState.progress = 100;
@@ -2279,16 +2221,13 @@ function updateMazePhysics() {
         triggerEndGameModal(true);
     }
 
-    // Smooth camera tracking
     MazeState.cameraX += (p.x - MazeState.cameraX) * 0.12;
     MazeState.cameraY += (p.y - MazeState.cameraY) * 0.12;
 
-    // Speed particles
     if (p.turboTimer > 0 && Math.random() < 0.6) {
         spawnMazeParticles(p.x, p.y, '#38bdf8', 2);
     }
 
-    // Particles update
     for (let i = MazeState.particles.length - 1; i >= 0; i--) {
         const pt = MazeState.particles[i];
         pt.x += pt.vx;
@@ -2325,18 +2264,15 @@ function drawMazeScene() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
-    // Center view on player
     ctx.translate(canvas.width / 2 - MazeState.cameraX, canvas.height / 2 - MazeState.cameraY);
 
     const cs = MazeState.cellSize;
     const totalW = MazeState.cols * cs;
     const totalH = MazeState.rows * cs;
 
-    // Dark grid background
     ctx.fillStyle = '#060b17';
     ctx.fillRect(0, 0, totalW, totalH);
 
-    // Neon circuit lines
     ctx.strokeStyle = '#0f172a';
     ctx.lineWidth = 1;
     for (let x = 0; x <= totalW; x += cs) {
@@ -2346,7 +2282,6 @@ function drawMazeScene() {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(totalW, y); ctx.stroke();
     }
 
-    // Draw Walls
     ctx.strokeStyle = '#06b6d4';
     ctx.lineWidth = 6;
     ctx.lineCap = 'round';
@@ -2387,7 +2322,6 @@ function drawMazeScene() {
             roundRect(ctx, g.x - g.w / 2, g.y - g.h / 2, g.w, g.h, 4);
             ctx.fill();
 
-            // Laser beam animation
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -2403,7 +2337,6 @@ function drawMazeScene() {
         ctx.restore();
     });
 
-    // Cyber Data Core (Finish)
     const core = MazeState.core;
     ctx.save();
     ctx.shadowColor = '#facc15';
@@ -2413,7 +2346,6 @@ function drawMazeScene() {
     ctx.arc(core.x, core.y, core.radius, 0, Math.PI * 2);
     ctx.fill();
 
-    // Rotating pulse ring
     const pulse = (Date.now() / 300) % (Math.PI * 2);
     ctx.strokeStyle = '#fef08a';
     ctx.lineWidth = 3;
@@ -2427,7 +2359,6 @@ function drawMazeScene() {
     ctx.fillText('🏁', core.x, core.y + 6);
     ctx.restore();
 
-    // Classmate Racers
     Object.values(NetworkManager.otherPlayers).forEach(op => {
         if (op.targetX !== undefined) {
             op.x += (op.targetX - op.x) * 0.2;
@@ -2436,11 +2367,9 @@ function drawMazeScene() {
         drawRacerAvatar(ctx, op.x, op.y, op.color || '#ec4899', op.name, false);
     });
 
-    // Local Player Racer
     const p = MazeState.player;
     drawRacerAvatar(ctx, p.x, p.y, p.color, currentStudentName, true, p.turboTimer > 0);
 
-    // Particles
     MazeState.particles.forEach(pt => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, pt.alpha);
@@ -2453,7 +2382,6 @@ function drawMazeScene() {
 
     ctx.restore();
 
-    // Floating Radar / Minimap on Top-Right Corner
     drawMazeMinimap();
 }
 
@@ -2467,7 +2395,6 @@ function drawRacerAvatar(ctx, x, y, color, name, isLocal, isTurbo = false) {
     ctx.arc(x, y, 16, 0, Math.PI * 2);
     ctx.fill();
 
-    // Visor
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
     ctx.arc(x + 3, y - 2, 7, 0, Math.PI * 2);
@@ -2478,7 +2405,6 @@ function drawRacerAvatar(ctx, x, y, color, name, isLocal, isTurbo = false) {
     ctx.arc(x + 4, y - 2, 3, 0, Math.PI * 2);
     ctx.fill();
 
-    // Name tag
     ctx.shadowBlur = 0;
     ctx.font = 'bold 11px Fredoka, sans-serif';
     ctx.textAlign = 'center';
@@ -2514,13 +2440,11 @@ function drawMazeMinimap() {
     const scaleX = mapW / totalW;
     const scaleY = mapH / totalH;
 
-    // Core icon on minimap
     ctx.fillStyle = '#facc15';
     ctx.beginPath();
     ctx.arc(mapX + MazeState.core.x * scaleX, mapY + MazeState.core.y * scaleY, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Other players on minimap
     Object.values(NetworkManager.otherPlayers).forEach(op => {
         ctx.fillStyle = op.color || '#ec4899';
         ctx.beginPath();
@@ -2528,7 +2452,6 @@ function drawMazeMinimap() {
         ctx.fill();
     });
 
-    // Local player on minimap (pulsing green dot)
     const p = MazeState.player;
     ctx.fillStyle = '#10b981';
     ctx.beginPath();
@@ -2553,17 +2476,14 @@ function spawnMazeParticles(x, y, color, count = 8) {
 }
 
 
-// =====================================================================
-// GAME 3: GALAXY TUG-OF-WAR ENGINE
-// =====================================================================
 const GalaxyState = {
     paused: false,
     gameEnded: false,
     galaxySeed: 12345,
-    myTeam: 'solar', // 'solar' (Cyan) | 'nebula' (Magenta)
+    myTeam: 'solar', 
     myBatteries: 15,
     myPullPower: 0,
-    corePos: 0, // -100 (Solar win) to +100 (Nebula win)
+    corePos: 0, 
     solarPower: 0,
     nebulaPower: 0,
     stars: [],
@@ -2583,7 +2503,6 @@ function initGalaxyGame(seed = 12345) {
     GalaxyState.particles = [];
     GalaxyState.shake = 0;
 
-    // Auto-balance or inherit team
     const room = getRoomData(currentRoomCode);
     if (room && room.students && room.students[currentStudentId] && room.students[currentStudentId].team) {
         GalaxyState.myTeam = room.students[currentStudentId].team;
@@ -2591,7 +2510,6 @@ function initGalaxyGame(seed = 12345) {
         GalaxyState.myTeam = Math.random() < 0.5 ? 'solar' : 'nebula';
     }
 
-    // Generate 120 starfield stars
     GalaxyState.stars = [];
     for (let i = 0; i < 120; i++) {
         GalaxyState.stars.push({
@@ -2637,25 +2555,20 @@ function applyGalaxyPull(team, amount, studentName) {
 function updateGalaxyPhysics() {
     if (GalaxyState.paused || GalaxyState.gameEnded) return;
 
-    // Drift starfield
     GalaxyState.stars.forEach(s => {
         s.x -= s.speed;
         if (s.x < 0) s.x = (canvas ? canvas.width : 1000) + 20;
     });
 
-    // Core shift from pull force
     const netForce = GalaxyState.nebulaPower - GalaxyState.solarPower;
     GalaxyState.corePos += netForce * 0.05;
 
-    // Natural cosmic dampening
     GalaxyState.solarPower *= 0.94;
     GalaxyState.nebulaPower *= 0.94;
 
-    // Clamp core position
     if (GalaxyState.corePos < -100) GalaxyState.corePos = -100;
     if (GalaxyState.corePos > 100) GalaxyState.corePos = 100;
 
-    // Check Victory condition (-85 Solar win, +85 Nebula win)
     if (GalaxyState.corePos <= -85 && !GalaxyState.gameEnded) {
         GalaxyState.gameEnded = true;
         SoundFX.victory();
@@ -2668,7 +2581,6 @@ function updateGalaxyPhysics() {
 
     if (GalaxyState.shake > 0) GalaxyState.shake *= 0.9;
 
-    // Particles update
     for (let i = GalaxyState.particles.length - 1; i >= 0; i--) {
         const pt = GalaxyState.particles[i];
         pt.x += pt.vx;
@@ -2683,7 +2595,6 @@ function drawGalaxyScene() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
-    // Screen shake
     if (GalaxyState.shake > 0.5) {
         const rx = (Math.random() - 0.5) * GalaxyState.shake;
         const ry = (Math.random() - 0.5) * GalaxyState.shake;
@@ -2693,7 +2604,6 @@ function drawGalaxyScene() {
     const W = canvas.width;
     const H = canvas.height;
 
-    // Deep cosmic gradient
     const bgGrad = ctx.createLinearGradient(0, 0, W, H);
     bgGrad.addColorStop(0, '#040817');
     bgGrad.addColorStop(0.5, '#0b0f2a');
@@ -2701,7 +2611,6 @@ function drawGalaxyScene() {
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // Starfield
     GalaxyState.stars.forEach(s => {
         ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
         ctx.beginPath();
@@ -2712,7 +2621,6 @@ function drawGalaxyScene() {
     const centerY = H * 0.52;
     const centerCoreX = W * 0.5 + (GalaxyState.corePos / 100) * (W * 0.32);
 
-    // Draw Solar Flagship (Left)
     const solarShipX = W * 0.14;
     ctx.save();
     ctx.shadowColor = '#06b6d4';
@@ -2728,7 +2636,6 @@ function drawGalaxyScene() {
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
-    // Engine thruster flames
     ctx.fillStyle = '#38bdf8';
     ctx.beginPath();
     ctx.moveTo(solarShipX - 70, centerY - 25);
@@ -2743,7 +2650,6 @@ function drawGalaxyScene() {
     ctx.fillText('⚡ TIM SURYA (CYAN)', solarShipX, centerY - 80);
     ctx.restore();
 
-    // Draw Nebula Dreadnought (Right)
     const nebulaShipX = W * 0.86;
     ctx.save();
     ctx.shadowColor = '#ec4899';
@@ -2759,7 +2665,6 @@ function drawGalaxyScene() {
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
-    // Engine thruster flames
     ctx.fillStyle = '#f43f5e';
     ctx.beginPath();
     ctx.moveTo(nebulaShipX + 70, centerY - 25);
@@ -2774,8 +2679,6 @@ function drawGalaxyScene() {
     ctx.fillText('🌌 TIM NEBULA (MAGENTA)', nebulaShipX, centerY - 80);
     ctx.restore();
 
-    // Tractor Plasma Beams to Quantum Core
-    // Solar beam (Left -> Core)
     ctx.save();
     ctx.strokeStyle = '#22d3ee';
     ctx.lineWidth = 4 + (GalaxyState.solarPower > 0 ? 4 : 0);
@@ -2786,7 +2689,6 @@ function drawGalaxyScene() {
     ctx.lineTo(centerCoreX, centerY);
     ctx.stroke();
 
-    // Nebula beam (Right -> Core)
     ctx.strokeStyle = '#f472b6';
     ctx.lineWidth = 4 + (GalaxyState.nebulaPower > 0 ? 4 : 0);
     ctx.shadowColor = '#ec4899';
@@ -2797,7 +2699,6 @@ function drawGalaxyScene() {
     ctx.stroke();
     ctx.restore();
 
-    // Event Horizon Threshold Markers
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.setLineDash([6, 6]);
     ctx.beginPath();
@@ -2806,7 +2707,6 @@ function drawGalaxyScene() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Quantum Singularity Core (Center Orb)
     ctx.save();
     ctx.shadowColor = '#facc15';
     ctx.shadowBlur = 25;
@@ -2815,7 +2715,6 @@ function drawGalaxyScene() {
     ctx.arc(centerCoreX, centerY, 32, 0, Math.PI * 2);
     ctx.fill();
 
-    // Rotating containment rings
     const rot = (Date.now() / 250);
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 3;
@@ -2834,10 +2733,8 @@ function drawGalaxyScene() {
     ctx.fillText('⚛️', centerCoreX, centerY + 6);
     ctx.restore();
 
-    // Large Tug-of-War Balance Gauge on top of canvas
     drawTugGauge(W, H);
 
-    // Particles
     GalaxyState.particles.forEach(pt => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, pt.alpha);
@@ -2898,9 +2795,6 @@ function spawnGalaxyParticles(x, y, color, count = 10) {
     }
 }
 
-// =====================================================================
-// GAME 4: NEON FISH RAID ENGINE
-// =====================================================================
 const RaidState = {
     paused: false,
     gameEnded: false,
@@ -2924,7 +2818,7 @@ const RaidState = {
         y: 500,
         targetX: 400,
         targetY: 300,
-        state: 'idle', // 'idle' | 'shooting' | 'hooked' | 'reeling'
+        state: 'idle', 
         hookedFish: null
     },
     fishes: [],
@@ -2948,7 +2842,6 @@ function initRaidGame(seed = 12345) {
     RaidState.torpedoes = [];
     RaidState.damageTexts = [];
 
-    // Spawn 6 cyber fishes
     const rand = createMulberry32(seed);
     const fishTypes = [
         { type: 'salmon', name: 'Laser Salmon', color: '#06b6d4', damage: 35, speed: 2.2 },
@@ -2974,7 +2867,6 @@ function initRaidGame(seed = 12345) {
         });
     }
 
-    // 40 Ocean Bubbles
     RaidState.bubbles = [];
     for (let i = 0; i < 40; i++) {
         RaidState.bubbles.push({
@@ -3016,7 +2908,6 @@ function triggerBossStrikeFromQuiz() {
     RaidState.myTotalDamage += dmg;
     RaidState.fishCaught++;
 
-    // Launch Torpedo from hook to Boss Mega-Red
     RaidState.torpedoes.push({
         x: RaidState.harpoon.x,
         y: RaidState.harpoon.y,
@@ -3039,7 +2930,6 @@ function applyRaidDamage(amount, studentName, fishType) {
     RaidState.boss.hitTimer = 16;
     SoundFX.bossHit();
 
-    // Damage popup text
     RaidState.damageTexts.push({
         x: (canvas ? canvas.width / 2 : 400) + (Math.random() - 0.5) * 120,
         y: 140 + (Math.random() - 0.5) * 40,
@@ -3065,7 +2955,6 @@ function applyRaidDamage(amount, studentName, fishType) {
 function updateRaidPhysics() {
     if (RaidState.paused || RaidState.gameEnded) return;
 
-    // Bubbles
     const W = canvas ? canvas.width : 800;
     const H = canvas ? canvas.height : 600;
     RaidState.bubbles.forEach(b => {
@@ -3073,17 +2962,14 @@ function updateRaidPhysics() {
         if (b.y < -10) b.y = H + 10;
     });
 
-    // Boss animation
     RaidState.boss.tentacleAngle = Math.sin(Date.now() / 350) * 0.35;
     if (RaidState.boss.hitTimer > 0) RaidState.boss.hitTimer--;
 
-    // Fish swim
     RaidState.fishes.forEach(f => {
         f.x += f.vx;
         if (f.x < 30 || f.x > W - 50) f.vx = -f.vx;
     });
 
-    // Harpoon line
     const hp = RaidState.harpoon;
     if (hp.state === 'shooting') {
         const dx = hp.targetX - hp.x;
@@ -3093,7 +2979,6 @@ function updateRaidPhysics() {
             hp.x += (dx / dist) * 18;
             hp.y += (dy / dist) * 18;
 
-            // Check collision with swimming fishes
             for (let i = 0; i < RaidState.fishes.length; i++) {
                 const f = RaidState.fishes[i];
                 if (Math.hypot(hp.x - f.x, hp.y - f.y) < 28) {
@@ -3110,7 +2995,6 @@ function updateRaidPhysics() {
         }
     }
 
-    // Torpedoes
     for (let i = RaidState.torpedoes.length - 1; i >= 0; i--) {
         const tp = RaidState.torpedoes[i];
         const dx = tp.targetX - tp.x;
@@ -3124,7 +3008,6 @@ function updateRaidPhysics() {
         }
     }
 
-    // Floating damage texts
     for (let i = RaidState.damageTexts.length - 1; i >= 0; i--) {
         const dt = RaidState.damageTexts[i];
         dt.y -= 1.2;
@@ -3140,7 +3023,6 @@ function drawRaidScene() {
     const W = canvas.width;
     const H = canvas.height;
 
-    // Deep Underwater Ocean Gradient
     const oceanGrad = ctx.createLinearGradient(0, 0, 0, H);
     oceanGrad.addColorStop(0, '#04162e');
     oceanGrad.addColorStop(0.5, '#07244a');
@@ -3148,7 +3030,6 @@ function drawRaidScene() {
     ctx.fillStyle = oceanGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // Sunlight Caustics rays
     ctx.fillStyle = 'rgba(56, 189, 248, 0.04)';
     for (let i = 0; i < 5; i++) {
         ctx.beginPath();
@@ -3159,7 +3040,6 @@ function drawRaidScene() {
         ctx.fill();
     }
 
-    // Rising bubbles
     RaidState.bubbles.forEach(b => {
         ctx.strokeStyle = 'rgba(125, 211, 252, 0.35)';
         ctx.lineWidth = 1;
@@ -3168,22 +3048,18 @@ function drawRaidScene() {
         ctx.stroke();
     });
 
-    // Draw Boss Mega-Red
     drawMegaRedBoss(W / 2, 140);
 
-    // Swimming Cyber Fish
     RaidState.fishes.forEach(f => {
         ctx.save();
         ctx.shadowColor = f.color;
         ctx.shadowBlur = 10;
         ctx.fillStyle = f.color;
 
-        // Fish body
         ctx.beginPath();
         ctx.ellipse(f.x, f.y, f.w / 2, f.h / 2, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Fish tail
         const tailDir = f.vx > 0 ? -1 : 1;
         ctx.beginPath();
         ctx.moveTo(f.x + tailDir * (f.w / 2), f.y);
@@ -3192,13 +3068,11 @@ function drawRaidScene() {
         ctx.closePath();
         ctx.fill();
 
-        // Fish eye
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(f.x - tailDir * (f.w / 3), f.y - 3, 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Label
         ctx.shadowBlur = 0;
         ctx.font = 'bold 10px Fredoka, sans-serif';
         ctx.fillStyle = '#ffffff';
@@ -3207,7 +3081,6 @@ function drawRaidScene() {
         ctx.restore();
     });
 
-    // Player Fishing Boat / Submarine at Bottom
     const subX = W / 2;
     const subY = H - 35;
     ctx.save();
@@ -3223,7 +3096,6 @@ function drawRaidScene() {
     ctx.fillText('SUBMARINE SISWA', subX, subY + 5);
     ctx.restore();
 
-    // Harpoon Line & Hook
     const hp = RaidState.harpoon;
     if (hp.state === 'shooting' || hp.state === 'hooked') {
         ctx.save();
@@ -3241,7 +3113,6 @@ function drawRaidScene() {
         ctx.restore();
     }
 
-    // Flying Torpedoes
     RaidState.torpedoes.forEach(tp => {
         ctx.save();
         ctx.shadowColor = tp.color;
@@ -3253,7 +3124,6 @@ function drawRaidScene() {
         ctx.restore();
     });
 
-    // Floating Damage Popups
     RaidState.damageTexts.forEach(dt => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, dt.alpha);
@@ -3276,7 +3146,6 @@ function drawMegaRedBoss(cx, cy) {
     ctx.shadowColor = isHit ? '#ffffff' : (isEnraged ? '#ef4444' : '#f43f5e');
     ctx.shadowBlur = isEnraged ? 28 : 16;
 
-    // Tentacles
     ctx.strokeStyle = isEnraged ? '#dc2626' : '#991b1b';
     ctx.lineWidth = 14;
     ctx.lineCap = 'round';
@@ -3290,7 +3159,6 @@ function drawMegaRedBoss(cx, cy) {
         ctx.stroke();
     }
 
-    // Boss Main Body
     ctx.fillStyle = isHit ? '#ffffff' : (isEnraged ? '#7f1d1d' : '#881337');
     ctx.strokeStyle = isEnraged ? '#f87171' : '#f43f5e';
     ctx.lineWidth = 4;
@@ -3299,7 +3167,6 @@ function drawMegaRedBoss(cx, cy) {
     ctx.ellipse(cx, cy, 95, 65, 0, 0, Math.PI * 2);
     ctx.fill(); ctx.stroke();
 
-    // Menacing Cyber Eye
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
     ctx.ellipse(cx, cy - 8, 28, 18, 0, 0, Math.PI * 2);
@@ -3310,7 +3177,6 @@ function drawMegaRedBoss(cx, cy) {
     ctx.arc(cx, cy - 8, 10, 0, Math.PI * 2);
     ctx.fill();
 
-    // Giant Boss Health Bar on top
     const barW = 280;
     const barH = 16;
     const barX = cx - barW / 2;
@@ -3337,9 +3203,7 @@ function drawMegaRedBoss(cx, cy) {
 }
 
 
-// =====================================================================
-// UNIFIED GAME ENGINE LIFECYCLE & INPUT CONTROLLER
-// =====================================================================
+
 let canvas = null;
 let ctx = null;
 let animFrameId = null;
@@ -3422,7 +3286,6 @@ function gameLoop() {
     animFrameId = requestAnimationFrame(gameLoop);
 }
 
-// Canvas tap/click listener for Neon Fish Raid
 window.addEventListener('load', () => {
     const c = document.getElementById('gameCanvas');
     if (c) {
@@ -3437,9 +3300,7 @@ window.addEventListener('load', () => {
     }
 });
 
-// =====================================================================
-// AVATAR RENDERING & HELPER UTILITIES
-// =====================================================================
+
 function drawPlayerAvatar(ctx, x, y, facing, color, name, isLocal) {
     ctx.save();
     const w = 34;
@@ -3450,24 +3311,20 @@ function drawPlayerAvatar(ctx, x, y, facing, color, name, isLocal) {
         ctx.shadowBlur = 15;
     }
 
-    // Body
     ctx.fillStyle = color;
     roundRect(ctx, x, y + 10, w, h - 10, 8);
     ctx.fill();
 
-    // Head
     ctx.fillStyle = '#fde047';
     ctx.beginPath();
     ctx.arc(x + w / 2, y + 12, 12, 0, Math.PI * 2);
     ctx.fill();
 
-    // Hair / Cap
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(x + w / 2, y + 8, 12, Math.PI, Math.PI * 2);
     ctx.fill();
 
-    // Face / Eyes
     const eyeOffset = facing > 0 ? 3 : -3;
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
@@ -3475,14 +3332,12 @@ function drawPlayerAvatar(ctx, x, y, facing, color, name, isLocal) {
     ctx.arc(x + w / 2 + eyeOffset + 3, y + 12, 2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Smile
     ctx.strokeStyle = '#0f172a';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(x + w / 2 + eyeOffset, y + 14, 4, 0.2, Math.PI - 0.2);
     ctx.stroke();
 
-    // Name tag floating
     ctx.shadowBlur = 0;
     ctx.font = 'bold 11px Fredoka, sans-serif';
     ctx.textAlign = 'center';
@@ -3561,13 +3416,10 @@ function replayOrContinue() {
     setGamePaused(false);
 }
 
-// =====================================================================
-// UNIFIED KEYBOARD & TOUCH CONTROLS
-// =====================================================================
+
 window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
 
-    // Prevent default scrolling for game keys
     if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(e.key)) {
         if (!document.getElementById('viewStudent').classList.contains('hidden') &&
             document.getElementById('quizModal').classList.contains('hidden')) {
@@ -3575,27 +3427,22 @@ window.addEventListener('keydown', (e) => {
         }
     }
 
-    // Left
     if (key === 'a' || e.key === 'ArrowLeft') {
         GameState.keys.left = true;
         MazeState.keys.left = true;
     }
-    // Right
     if (key === 'd' || e.key === 'ArrowRight') {
         GameState.keys.right = true;
         MazeState.keys.right = true;
     }
-    // Up
     if (key === 'w' || e.key === 'ArrowUp') {
         MazeState.keys.up = true;
         if (currentGameType === 'tower') attemptPlayerJump();
     }
-    // Down
     if (key === 's' || e.key === 'ArrowDown') {
         MazeState.keys.down = true;
     }
 
-    // Space action
     if (e.key === ' ' || e.code === 'Space') {
         if (currentGameType === 'tower') attemptPlayerJump();
         else if (currentGameType === 'maze') attemptMazeTurbo();
@@ -3603,7 +3450,6 @@ window.addEventListener('keydown', (e) => {
         else if (currentGameType === 'raid') castFishingLine(canvas ? canvas.width / 2 : 400, 320);
     }
 
-    // Quiz shortcut
     if (key === 'enter' || key === 'q' || key === 'e') {
         if (document.getElementById('quizModal').classList.contains('hidden') &&
             !document.getElementById('viewStudent').classList.contains('hidden')) {
@@ -3611,7 +3457,6 @@ window.addEventListener('keydown', (e) => {
         }
     }
 
-    // Respawn shortcut (Tower)
     if (key === 'r' && currentGameType === 'tower') {
         triggerRespawn();
     }
@@ -3673,9 +3518,7 @@ function initTouchControls() {
 window.addEventListener('DOMContentLoaded', initTouchControls);
 setTimeout(initTouchControls, 500);
 
-// =====================================================================
-// GENERAL STRING & CLIPBOARD UTILITIES
-// =====================================================================
+
 function formatSeconds(totalSec) {
     const m = Math.floor(totalSec / 60);
     const s = totalSec % 60;
