@@ -14,8 +14,34 @@ Hasil AI: AI memberikan saran mengenai struktur portal, mekanisme setiap game, p
 
 Tahap 2 — Penyusunan Kerangka Kode
 Kami menyusun program menggunakan HTML, CSS, dan JavaScript. Program dibagi menjadi halaman portal, dashboard guru, tampilan siswa, serta mekanisme permainan.
+
 Prompt AI:
 Bantu susun kode JavaScript untuk empat game EduPlay Arena. Tower of Quiz menggunakan poin lompatan, Cyber Maze Race menggunakan turbo untuk membuka gerbang, Galaxy Tug-of-War menggunakan daya traktor untuk menarik inti kuantum, dan Neon Fish Raid menggunakan serangan ikan untuk mengurangi HP boss. Sesuaikan logika dengan fitur multiplayer dan mode solo.
+
+Hasil AI:
+function submitQuizAnswer(selectedIdx) {
+    if (!currentQuestionObj) return;
+    const isCorrect = (selectedIdx === currentQuestionObj.correct);
+
+  if (isCorrect) {
+        SoundFX.correct();
+
+  if (currentGameType === 'tower') {
+            GameState.jumpPoints += 2;
+            updatePointsHUD();
+        } else if (currentGameType === 'maze') {
+            MazeState.turboEnergy += 2;
+            unlockNearbyMazeGate();
+            updatePointsHUD();
+        } else if (currentGameType === 'galaxy') {
+            GalaxyState.myBatteries += 15;
+            GalaxyState.myPullPower += 15;
+        } else if (currentGameType === 'raid') {
+            triggerBossStrikeFromQuiz();
+        }
+    }
+Penjelasan:
+Kode ini merupakan sistem pemeriksaan jawaban dan pemberian poin yang digunakan bersama oleh keempat game. Jika jawaban benar, pemain mendapatkan poin sesuai jenis permainan yang sedang dimainkan. Jika jawaban salah, pemain tidak mendapatkan poin. Dengan demikian, keempat game menggunakan satu sistem penilaian yang sama.
 
 Tahap 3 — Pemecahan Masalah dan Penanganan Galat
 Kami menguji fitur permainan, seperti koneksi multiplayer, kode ruangan, timer, pergerakan pemain, sistem reward, dan pembaruan skor. AI membantu mengidentifikasi kemungkinan kesalahan serta memberikan alternatif perbaikan.
